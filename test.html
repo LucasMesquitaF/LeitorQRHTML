@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitura de QR Code</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    
+</head>
+<body>
+    <h1>Leitura de QR Code</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+    <button id="scan">Escanear QR Code</button>
+    <button onclick="alert('Botão clicado!')">CLIQUE</button>
+    <div id="result"></div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const resultDiv = document.getElementById('result');
+
+        // Função para acessar a câmera
+        navigator.mediaDevices.getUserMedia({  video: true})
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(err => {
+                console.error("Erro ao acessar a câmera: ", err);
+            });
+
+        document.getElementById('scan').addEventListener('click', captureQR);
+        document.getElementById('scan').addEventListener('touchstart', captureQR);
+
+        // Função para escanear QR code
+        function captureQR() {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+            if (code) {
+                resultDiv.textContent = `QR Code lido: ${code.data}`;
+            } else {
+                resultDiv.textContent = 'Nenhum QR Code encontrado.';
+            }
+        }
+    </script>
+</body>
+</html>
